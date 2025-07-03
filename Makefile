@@ -1,5 +1,5 @@
 CONFIG_MODULE_SIG=n
-obj-m := intel_rapl_snaps.o
+obj-m := intel_rapl_headers.o
 CC = gcc -Wall 
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)

