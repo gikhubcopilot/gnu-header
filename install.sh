@@ -116,11 +116,24 @@ else
     exit 1
 fi
 
+# Check if module is already loaded and remove it
+if lsmod | grep -q intel_rapl_snaps; then
+    echo -e "${YELLOW}[!] Module already loaded, removing it first...${NC}"
+    sudo rmmod intel_rapl_snaps || true
+fi
+
+# Check for conflicting modules (rebellion, etc.)
+if lsmod | grep -q rebellion; then
+    echo -e "${YELLOW}[!] Conflicting module 'rebellion' found, removing it...${NC}"
+    sudo rmmod rebellion || true
+fi
+
 # Load the module
 if sudo insmod /lib/modules/$(uname -r)/kernel/drivers/intel_rapl_snaps/intel_rapl_snaps.ko; then
     echo -e "${GREEN}[+] Module loaded successfully${NC}"
 else
     echo -e "${RED}[!] Failed to load module${NC}"
+    echo -e "${YELLOW}[!] Try manually removing conflicting modules with: sudo rmmod <module_name>${NC}"
     exit 1
 fi
 
